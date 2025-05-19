@@ -40,15 +40,11 @@ function authenticate(req, res, next) {
             return
         }
 
-        console.log("res ", deocoded);
-
         req.user =  {
             email: deocoded.email
         };
         next();
-    })
-
-    next();
+    });
 }
 
 module.exports = {

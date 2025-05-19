@@ -21,6 +21,7 @@ class FileUploader {
         });
         this.cleanupEnabled = this.options.cleanup;
     }
+
     configureStorage() {
         if (this.options.storageType === 'memory') {
             return multer.memoryStorage();
@@ -32,10 +33,18 @@ class FileUploader {
                 destination: (req, file, cb) => {
                     cb(null, this.options.destination);
                 },
-                filename: this.options.filename,
+                filename: (req, file, cb) => {
+                    const newFilename = this.options.filename(req, file, (err, newName) => {
+                        if (err) {
+                            return cb(err);
+                        }
+                        cb(null, newName);
+                    });
+                },
             });
         }
     }
+
     configureLimits() {
         const limits = {};
         if (this.options.maxFileSize) {
@@ -47,6 +56,7 @@ class FileUploader {
         }
         return limits;
     }
+
     configureFileFilter() {
         if (!this.options.allowedFileTypes) {
             return (req, file, cb) => {
@@ -61,11 +71,14 @@ class FileUploader {
             }
         };
     }
+
     defaultFilename(req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         const fileExtension = path.extname(file.originalname);
-        cb(null, file.fieldname + '-' + uniqueSuffix + fileExtension);
+        const newFilename =  uniqueSuffix + fileExtension;
+        cb(null, newFilename);
     }
+
     defaultErrorHandler(err, req, res, next) {
         if (err instanceof multer.MulterError) {
             res.status(400).json({ error: 'Multer error: ' + err.message });
@@ -73,6 +86,7 @@ class FileUploader {
             res.status(500).json({ error: 'File upload failed: ' + err.message });
         }
     }
+
     parseSize(sizeString) {
         const regex = /^(\d+)([KMGT]B)$/i;
         const match = sizeString.match(regex);
@@ -94,6 +108,7 @@ class FileUploader {
                 return null;
         }
     }
+
     single(fieldName) {
         return (req, res, next) => {
             this.upload.single(fieldName)(req, res, (err) => {
@@ -106,6 +121,7 @@ class FileUploader {
             });
         };
     }
+
     array(fieldName, maxCount) {
         return (req, res, next) => {
             this.upload.array(fieldName, maxCount)(req, res, (err) => {
@@ -118,6 +134,7 @@ class FileUploader {
             });
         };
     }
+
     fields(fields) {
         return (req, res, next) => {
             this.upload.fields(fields)(req, res, (err) => {
@@ -130,6 +147,7 @@ class FileUploader {
             });
         };
     }
+
     handleCleanup(req) {
         if (this.cleanupEnabled) {
             if (req.file) {
@@ -145,6 +163,7 @@ class FileUploader {
             }
         }
     }
+
     deleteFile(filePath) {
         if (filePath && fs.existsSync(filePath)) {
             fs.unlink(filePath, (err) => {
@@ -156,50 +175,6 @@ class FileUploader {
             });
         }
     }
-    uploadAndGetFile(fieldName) {
-        return (req, res) => {
-            return new Promise((resolve, reject) => {
-                this.upload.single(fieldName)(req, res, (err) => {
-                    if (err) {
-                        this.options.onError(err, req, res, () => { });
-                        reject(err);
-                    } else {
-                        this.handleCleanup(req);
-                        resolve(req.file);
-                    }
-                });
-            });
-        };
-    }
-    uploadAndGetFiles(fieldName, maxCount) {
-        return (req, res) => {
-            return new Promise((resolve, reject) => {
-                this.upload.array(fieldName, maxCount)(req, res, (err) => {
-                    if (err) {
-                        this.options.onError(err, req, res, () => { });
-                        reject(err);
-                    } else {
-                        this.handleCleanup(req);
-                        resolve(req.files);
-                    }
-                });
-            });
-        };
-    }
-    uploadAndGetFields(fields) {
-        return (req, res) => {
-            return new Promise((resolve, reject) => {
-                this.upload.fields(fields)(req, res, (err) => {
-                    if (err) {
-                        this.options.onError(err, req, res, () => { });
-                        reject(err);
-                    } else {
-                        this.handleCleanup(req);
-                        resolve(req.files);
-                    }
-                });
-            });
-        };
-    }
 }
+
 module.exports = FileUploader;

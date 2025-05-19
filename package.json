@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start-app": "node main.js WORKER_TYPE=app",
-    "start-fileserver": "node main.js WORKER_TYPE=fileserver",
+    "start-app": "node main.js",
+    "start-rabbitmq": "node main.js",
     "seed": "node prisma/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,10 +14,12 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.8.1",
+    "amqplib": "^0.10.8",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "joi": "^17.13.3",
+    "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",

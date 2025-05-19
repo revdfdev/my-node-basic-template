@@ -1,16 +1,18 @@
 const express = require("express");
 const Logger = require("../config/logger.js");
-// const Mongo = require("../config/database.js").mongo;
-const  { DatabaseClient } = require("../config/sql");
-const { authRoutes } = require("../routes/auth.routes")
-const { responseBodyLogger, requestBodyLogger} = require("../middlewares/logging");
-const { corsMiddleware } = require("../middlewares/cors");
-const { sanitizeInput } = require("../middlewares/input");
-const { securityHeaders } = require("../middlewares/security");
+const {DatabaseClient} = require("../config/sql");
+const {authRoutes} = require("../routes/auth.routes")
+const {responseBodyLogger, requestBodyLogger} = require("../middlewares/logging");
+const {corsMiddleware} = require("../middlewares/cors");
+const {sanitizeInput} = require("../middlewares/input");
+const {securityHeaders} = require("../middlewares/security");
 const {logRoutes} = require("../middlewares/logroutes");
 const {errorHandler} = require("../middlewares/error");
+const {fileRoutes} = require("../routes/fileupload.routes");
+const dotenv = require("dotenv");
+const path = require("node:path");
 
-const PORT  = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 class AppWorker {
 
@@ -30,7 +32,7 @@ class AppWorker {
             parameterLimit: 50000,
             type: 'application/json',
         }));
-        this.app.use(express.urlencoded({ extended: true, limit: '50mb', type: 'application/x-www-form-urlencoded' }));
+        this.app.use(express.urlencoded({extended: true, limit: '50mb', type: 'application/x-www-form-urlencoded'}));
         this.app.use(requestBodyLogger(
             {
                 logHeaders: true,
@@ -71,9 +73,10 @@ class AppWorker {
             })
         });
         this.app.use("/v1/auth", authRoutes);
+        this.app.use("/v1/files", fileRoutes)
     }
 
-    async run () {
+    async run() {
         this.app.use(errorHandler);
         logRoutes(this.app, this.app.logger);
         this.app.listen(PORT, () => {
@@ -104,6 +107,9 @@ class AppWorker {
 
 class Worker extends AppWorker {
     start() {
+        dotenv.config({
+            path: path.resolve(__dirname, '../.env.app')
+        });
         Logger.info(new Date().toLocaleString() + ' ===>> Worker PID : ' + process.pid)
         super.run();
     }

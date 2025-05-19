@@ -10,9 +10,9 @@ services:
     environment:
       - WORKER_TYPE=app
 
-  fileserver:
+  rabbitmq:
     build:
       context: .
-      dockerfile: Dockerfile.fileserver
+      dockerfile: Dockerfile.rabbitmq
     environment:
-      - WORKER_TYPE=subscriber
+      - WORKER_TYPE=rabbitmq

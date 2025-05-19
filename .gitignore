@@ -74,11 +74,15 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-.env
+.env.app
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
+.env.rabbitmq
+.env.development
+.env.test
+.env.production
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -130,3 +134,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 .idea
+
+config/mq.yaml

@@ -7,9 +7,7 @@ RUN npm install --production
 
 COPY . .
 
-EXPOSE 3000
-
-ENV WORKER_TYPE=app
+ENV WORKER_TYPE=rabbitmq
 ENV NODE_ENV=production
 
 CMD ["node", "main.js"]

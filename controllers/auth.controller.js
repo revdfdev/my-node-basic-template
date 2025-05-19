@@ -1,18 +1,9 @@
-const { authService } = require("../services/authservice");
 
+const { login } = require("../services/auth.service");
 
 let authController = null;
 
 class AuthController {
-
-    $service = null;
-
-    constructor() {
-        // Initialize service directly
-        this.$service = authService;
-    }
-
-    // Singleton instance
 
     static getAuthController() {
         if (!authController) {
@@ -32,7 +23,7 @@ class AuthController {
                 });
             }
 
-            const token = await authService.login(email, password);
+            const token = await login(email, password);
             
             if (!token) {
                 return res.status(401).json({
@@ -55,4 +46,6 @@ class AuthController {
     }
 }
 
-module.exports.AuthController = AuthController;
+module.exports = {
+    AuthController,
+};

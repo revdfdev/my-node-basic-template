@@ -1,9 +1,10 @@
 
 
 const _ = require('lodash');
-require('dotenv').config();
+const dotenv = require('dotenv');
 const SERVER_SCRIPTS = {
-    app: "./workers/appworker.js"
+    app: "./workers/appworker.js",
+    rabbitmq: "./workers/rabbitmqWorker.js"
 };
 const WORKER_TYPE = process.env.WORKER_TYPE || null;
 if (_.isEmpty(WORKER_TYPE) && _.isEmpty(SERVER_SCRIPTS[WORKER_TYPE])) {
@@ -13,6 +14,7 @@ if (_.isEmpty(WORKER_TYPE) && _.isEmpty(SERVER_SCRIPTS[WORKER_TYPE])) {
     );
     process.exit(1);
 }
+
 console.log('Loaded config environment : ' + process.env.NODE_ENV);
 console.log('Loaded worker type : ' + WORKER_TYPE);
 
